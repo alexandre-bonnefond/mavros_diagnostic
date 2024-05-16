@@ -16,34 +16,40 @@ void callback(const diagnostic_msgs::DiagnosticArray::ConstPtr& msg)
       values[value.key] = value.value;
     }
 
-    if (name.find("heartbeat") != std::string::npos || name.find("GPS") != std::string::npos) {
-      ROS_INFO("Name: %s", name.c_str());
-      ROS_INFO("Message: %s", message.c_str());
-      ROS_INFO("Hardware ID: %s", hardware_id.c_str());
-      ROS_INFO("Level: %d", level);
-
-      std::stringstream ss;
-      for (const auto& kv : values) {
-        ss << kv.first << ": " << kv.second << ", ";
-      }
-      ROS_INFO("Values: %s", ss.str().c_str());
+    if (name.find("FCU connection") != std::string::npos) {
+      ROS_INFO("FCU state: %s", message.c_str());
     }
 
-    // Example: Specific handling for heartbeat and GPS
-    if (name.find("heartbeat") != std::string::npos) {
-      auto it = values.find("Frequency");
-      if (it != values.end()) {
-        std::string frequency = it->second;
-        ROS_INFO("Heartbeat Frequency: %s", frequency.c_str());
-      }
+    if (name.find("Heartbeat") != std::string::npos) {
+      ROS_INFO("Hearbeat Frequency: %s", values["Frequency (Hz)"].c_str());
+      /* auto it = values.find("Frequency"); */
+      /* if (it != values.end()) { */
+      /*   std::string frequency = it->second; */
+      /*   ROS_INFO("Heartbeat Frequency: %s", frequency.c_str()); */
+      /* } */
+    }
+
+    if (name.find("System") != std::string::npos) {
+      /* auto it = values["3D gyro"]; */
+      /* std::cout<< it << std::endl; */
+      ROS_INFO("3D gyro: %s", values["3D gyro"].c_str());
+      ROS_INFO("3D accelerometer: %s", values["3D accelerometer"].c_str());
+      ROS_INFO("3D magnetometer: %s", values["3D magnetometer"].c_str());
+      ROS_INFO("GPS: %s", values["GPS"].c_str());
+      ROS_INFO("rc receiver: %s", values["rc receiver"].c_str());
+      ROS_INFO("AHRS: %s", values["AHRS subsystem health"].c_str());
+      ROS_INFO("Battery: %s", values["Battery"].c_str());
+      ROS_INFO("pre-arm check: %s", values["pre-arm check status. Always healthy when armed"].c_str());
+      ROS_INFO("CPU Load: %s", values["CPU Load (%)"].c_str());
     }
 
     if (name.find("GPS") != std::string::npos) {
-      auto it = values.find("Satellites visible");
-      if (it != values.end()) {
-        std::string satellites_visible = it->second;
-        ROS_INFO("GPS Satellites Visible: %s", satellites_visible.c_str());
-      }
+      ROS_INFO("GPS Satellites Visible: %s", values["Satellites visible"].c_str());
+    }
+
+    if (name.find("Battery") != std::string::npos) {
+      ROS_INFO("Voltage battery: %s", values["Voltage"].c_str());
+      ROS_INFO("Current battery: %s", values["Current"].c_str());
     }
   }
 }
