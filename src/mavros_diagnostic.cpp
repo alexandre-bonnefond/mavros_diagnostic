@@ -16,31 +16,43 @@ void callback(const diagnostic_msgs::DiagnosticArray::ConstPtr& msg)
       values[value.key] = value.value;
     }
 
-    ROS_INFO("Name: %s", name.c_str());
-    ROS_INFO("Message: %s", message.c_str());
-    ROS_INFO("Hardware ID: %s", hardware_id.c_str());
-    ROS_INFO("Level: %d", level);
+    if (name.find("heartbeat") != std::string::npos || name.find("GPS") != std::string::npos) {
+      ROS_INFO("Name: %s", name.c_str());
+      ROS_INFO("Message: %s", message.c_str());
+      ROS_INFO("Hardware ID: %s", hardware_id.c_str());
+      ROS_INFO("Level: %d", level);
 
-    std::stringstream ss;
-    for (const auto& kv : values) {
-      ss << kv.first << ": " << kv.second << ", ";
+      std::stringstream ss;
+      for (const auto& kv : values) {
+        ss << kv.first << ": " << kv.second << ", ";
+      }
+      ROS_INFO("Values: %s", ss.str().c_str());
     }
-    ROS_INFO("Values: %s", ss.str().c_str());
 
-    // Extract specific attributes you need
-    // For example, if you need the battery status
-    auto it = values.find("Battery");
-    if (it != values.end()) {
-      std::string battery_status = it->second;
-      ROS_INFO("Battery Status: %s", battery_status.c_str());
+    // Example: Specific handling for heartbeat and GPS
+    if (name.find("heartbeat") != std::string::npos) {
+      auto it = values.find("Frequency");
+      if (it != values.end()) {
+        std::string frequency = it->second;
+        ROS_INFO("Heartbeat Frequency: %s", frequency.c_str());
+      }
+    }
+
+    if (name.find("GPS") != std::string::npos) {
+      auto it = values.find("Satellites visible");
+      if (it != values.end()) {
+        std::string satellites_visible = it->second;
+        ROS_INFO("GPS Satellites Visible: %s", satellites_visible.c_str());
+      }
     }
   }
 }
+
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "mavros_diagnostic");
   ros::NodeHandle nh;
-  ros::Subscriber sub = nh.subscribe("/diagnostics", 10, callback);
+  ros::Subscriber sub = nh.subscribe("/uav49/diagnostics", 10, callback);
   ros::spin();
   return 0;
 }
